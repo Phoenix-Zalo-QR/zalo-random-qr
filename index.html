@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Đang kết nối Zalo...</title>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f5f7fb;color:#172033;text-align:center}
+    main{padding:28px} .spinner{width:42px;height:42px;border:5px solid #dbe7ff;border-top-color:#0866ff;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 18px}@keyframes s{to{transform:rotate(360deg)}}
+    a{color:#0866ff;font-weight:600}
+  </style>
+</head>
+<body>
+  <main><div class="spinner"></div><h1>Đang kết nối Zalo...</h1><p>Nếu không tự chuyển, <a id="go" href="#">bấm vào đây</a>.</p></main>
+  <script>
+    const links = [
+      'https://zalo.me/0335104786',
+      'https://zalo.me/0395199619',
+      'https://zalo.me/0865100581',
+      'https://zalo.me/0335103788'
+    ];
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    const target = links[random[0] % links.length];
+    document.getElementById('go').href = target;
+    setTimeout(() => location.replace(target), 250);
+  </script>
+</body>
+</html>
