@@ -5,48 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>Đang kết nối Zalo...</title>
-  <style>
-    body{font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#f5f7fb;color:#172033;text-align:center}
-    main{padding:28px}.spinner{width:42px;height:42px;border:5px solid #dbe7ff;border-top-color:#0866ff;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 18px}@keyframes s{to{transform:rotate(360deg)}}
-    a{color:#0866ff;font-weight:600}.hidden{display:none}
-  </style>
+  <meta http-equiv="refresh" content="0;url=https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec">
+  <style>body{font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:48px;color:#172033}a{color:#0866ff;font-weight:600}</style>
 </head>
 <body>
-  <main>
-    <div class="spinner" id="spinner"></div>
-    <h1 id="title">Đang kết nối Zalo...</h1>
-    <p id="message">Vui lòng chờ trong giây lát.</p>
-    <p class="hidden" id="manual">Nếu không tự chuyển, <a id="go" href="#">bấm vào đây</a>.</p>
-  </main>
-  <script>
-    const endpoint='https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec';
-    const timeout=setTimeout(()=>showError('Kết nối đang bận. Vui lòng thử quét lại sau.'),10000);
-
-    function receiveZaloTarget(data){
-      clearTimeout(timeout);
-      if(data&&data.ok&&typeof data.target==='string'&&data.target.indexOf('https://zalo.me/')===0){
-        const go=document.getElementById('go');
-        go.href=data.target;
-        document.getElementById('manual').classList.remove('hidden');
-        setTimeout(()=>location.replace(data.target),100);
-        return;
-      }
-      const text=data&&data.error==='NO_ACTIVE_ACCOUNTS'
-        ?'Hiện chưa có tài khoản Zalo đang hoạt động. Vui lòng quay lại sau.'
-        :'Kết nối đang bận. Vui lòng thử quét lại sau.';
-      showError(text);
-    }
-
-    function showError(text){
-      document.getElementById('spinner').classList.add('hidden');
-      document.getElementById('title').textContent='Chưa thể kết nối';
-      document.getElementById('message').textContent=text;
-    }
-
-    const api=document.createElement('script');
-    api.src=endpoint+'?callback=receiveZaloTarget&_='+Date.now();
-    api.onerror=()=>showError('Kết nối đang bận. Vui lòng thử quét lại sau.');
-    document.head.appendChild(api);
-  </script>
+  <p>Đang kết nối Zalo...</p>
+  <p>Nếu không tự chuyển, <a href="https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec">bấm vào đây</a>.</p>
+  <script>location.replace('https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec');</script>
 </body>
 </html>
