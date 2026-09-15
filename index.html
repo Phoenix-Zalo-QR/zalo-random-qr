@@ -5,12 +5,60 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>Đang kết nối Zalo...</title>
-  <meta http-equiv="refresh" content="0;url=https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec">
-  <style>body{font-family:system-ui,-apple-system,sans-serif;text-align:center;padding:48px;color:#172033}a{color:#0866ff;font-weight:600}</style>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#fff;color:#172033;text-align:center}
+    main{padding:28px}.spinner{width:42px;height:42px;border:5px solid #dbe7ff;border-top-color:#0866ff;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 18px}@keyframes s{to{transform:rotate(360deg)}}
+    a{color:#0866ff;font-weight:600}.hidden{display:none}
+  </style>
 </head>
 <body>
-  <p>Đang kết nối Zalo...</p>
-  <p>Nếu không tự chuyển, <a href="https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec">bấm vào đây</a>.</p>
-  <script>location.replace('https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec');</script>
+  <main>
+    <div class="spinner" id="spinner"></div>
+    <h1 id="title">Đang kết nối Zalo...</h1>
+    <p id="message">Vui lòng chờ trong giây lát.</p>
+    <p class="hidden" id="manual">Nếu không tự chuyển, <a id="go" href="#">bấm vào đây</a>.</p>
+  </main>
+  <script>
+    const tracker='https://script.google.com/macros/s/AKfycbwCIknXtGL5ujAhO0wJ0A6DMuoy6gVShQwem4A-gfmAmOLoDJpRroYMd-VdxROtFslibw/exec';
+    const sheet='https://docs.google.com/spreadsheets/d/1j3rmyWfX2jAOCF75SJw69qeH4WzYXwMA5W53wGTwVCY/gviz/tq?gid=1495533880&range=A3:J200&tqx=out:json;responseHandler:receiveSheet';
+    const timeout=setTimeout(()=>showError('Kết nối đang bận. Vui lòng thử quét lại sau.'),10000);
+    function receiveSheet(response){
+      clearTimeout(timeout);
+      const rows=response&&response.status==='ok'&&response.table?response.table.rows:[];
+      const today=todayKey();
+      const active=[];
+      rows.slice(1).forEach((row,index)=>{
+        const phone=String(cell(row,3)).replace(/[^0-9]/g,'');
+        const link=phone?'https://zalo.me/'+(phone.startsWith('84')?'0'+phone.slice(2):phone):String(cell(row,4)).trim();
+        const status=String(cell(row,6)).trim().toUpperCase();
+        const start=dateKey(cell(row,7));
+        const end=dateKey(cell(row,8));
+        if(status==='ON'&&link&&start&&start<=today&&(!end||today<=end)) active.push({row:index+4,link});
+      });
+      if(!active.length){showError('Hiện chưa có tài khoản Zalo đang hoạt động. Vui lòng quay lại sau.');return;}
+      const random=new Uint32Array(1);crypto.getRandomValues(random);openTarget(active[random[0]%active.length]);
+    }
+    function cell(row,column){return row&&row.c&&row.c[column]&&row.c[column].v!=null?row.c[column].v:''}
+    function dateKey(value){
+      const text=String(value||'').trim();let match=text.match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/);
+      if(match)return match[1]+match[2]+match[3];const parts=text.split('/');
+      return parts.length===3&&parts[2].length===4?parts[2]+parts[1].padStart(2,'0')+parts[0].padStart(2,'0'):'';
+    }
+    function todayKey(){
+      const parts=Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Ho_Chi_Minh',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+      const map={};parts.forEach(part=>map[part.type]=part.value);return map.year+map.month+map.day;
+    }
+    function openTarget(account){
+      const go=document.getElementById('go');go.href=account.link;document.getElementById('manual').classList.remove('hidden');
+      const tracking=fetch(tracker+'?track=1&row='+account.row+'&_='+Date.now(),{mode:'no-cors',keepalive:true}).catch(()=>{});
+      Promise.race([tracking,new Promise(resolve=>setTimeout(resolve,800))]).finally(()=>location.replace(account.link));
+    }
+    function showError(text){
+      clearTimeout(timeout);document.getElementById('spinner').classList.add('hidden');
+      document.getElementById('title').textContent='Chưa thể kết nối';document.getElementById('message').textContent=text;
+    }
+    const source=document.createElement('script');source.src=sheet+'&_='+Date.now();
+    source.onerror=()=>showError('Không đọc được danh sách Zalo. Vui lòng thử lại sau.');document.head.appendChild(source);
+  </script>
 </body>
 </html>
