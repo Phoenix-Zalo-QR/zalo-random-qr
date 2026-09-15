@@ -50,8 +50,8 @@
     }
     function openTarget(account){
       const go=document.getElementById('go');go.href=account.link;document.getElementById('manual').classList.remove('hidden');
-      const tracking=fetch(tracker+'?track=1&row='+account.row+'&_='+Date.now(),{mode:'no-cors',keepalive:true}).catch(()=>{});
-      Promise.race([tracking,new Promise(resolve=>setTimeout(resolve,800))]).finally(()=>location.replace(account.link));
+      fetch(tracker+'?track=1&row='+account.row+'&_='+Date.now(),{mode:'no-cors',keepalive:true}).catch(()=>{});
+      location.replace(account.link);
     }
     function showError(text){
       clearTimeout(timeout);document.getElementById('spinner').classList.add('hidden');
