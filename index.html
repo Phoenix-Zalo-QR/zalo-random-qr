@@ -33,7 +33,9 @@
         const status=String(cell(row,6)).trim().toUpperCase();
         const start=dateKey(cell(row,7));
         const end=dateKey(cell(row,8));
-        if(status==='ON'&&link&&start&&start<=today&&(!end||today<=end)) active.push({row:index+4,link});
+        if(status==='ON'&&link&&start&&start<=today&&(!end||today<=end)) active.push({
+          row:index+4,link,account:String(cell(row,0)),employee:String(cell(row,1)),name:String(cell(row,2)),phone
+        });
       });
       if(!active.length){showError('Hiện chưa có tài khoản Zalo đang hoạt động. Vui lòng quay lại sau.');return;}
       const random=new Uint32Array(1);crypto.getRandomValues(random);openTarget(active[random[0]%active.length]);
@@ -50,8 +52,23 @@
     }
     function openTarget(account){
       const go=document.getElementById('go');go.href=account.link;document.getElementById('manual').classList.remove('hidden');
-      fetch(tracker+'?track=1&row='+account.row+'&_='+Date.now(),{mode:'no-cors',keepalive:true}).catch(()=>{});
+      const metadata=scanMetadata();
+      const query=new URLSearchParams({track:'1',row:String(account.row),_:String(Date.now()),...metadata});
+      fetch(tracker+'?'+query.toString(),{mode:'no-cors',keepalive:true}).catch(()=>{});
       location.replace(account.link);
+    }
+    function scanMetadata(){
+      const ua=navigator.userAgent||'';const query=new URLSearchParams(location.search);
+      const os=/Android/i.test(ua)?'Android':/iPhone|iPad|iPod/i.test(ua)?'iOS/iPadOS':/Windows/i.test(ua)?'Windows':/Macintosh|Mac OS X/i.test(ua)?'macOS':/Linux/i.test(ua)?'Linux':'Không xác định';
+      const device=/iPad|Tablet/i.test(ua)?'Máy tính bảng':/Mobile|Android|iPhone|iPod/i.test(ua)?'Điện thoại':'Máy tính/khác';
+      const browser=/Zalo/i.test(ua)?'Trình duyệt Zalo':/SamsungBrowser/i.test(ua)?'Samsung Internet':/Edg/i.test(ua)?'Microsoft Edge':/CriOS|Chrome/i.test(ua)?'Chrome':/FxiOS|Firefox/i.test(ua)?'Firefox':/Safari/i.test(ua)?'Safari':'Không xác định';
+      const scanMethod=/Zalo/i.test(ua)?'Zalo (dự đoán)':/FBAN|FBAV|Instagram|TikTok/i.test(ua)?'Trình duyệt nhúng ứng dụng (dự đoán)':'Camera hoặc trình duyệt mặc định (không xác định)';
+      return {
+        scanId:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random().toString(16).slice(2)),
+        channel:query.get('kenh')||'TIVI',campaign:query.get('chien-dich')||'',slot:query.get('khung-gio')||'',
+        scanMethod,device,os,browser,language:navigator.language||'',screen:window.screen.width+'x'+window.screen.height,
+        userAgent:ua,referrer:document.referrer||''
+      };
     }
     function showError(text){
       clearTimeout(timeout);document.getElementById('spinner').classList.add('hidden');
